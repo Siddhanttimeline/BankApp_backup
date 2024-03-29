@@ -25,7 +25,10 @@ spring:
     port: 5672
     username: "guest"
     password: "guest"
-
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 management:
   endpoints:
     web:
@@ -59,3 +62,25 @@ info:
     name: "accounts"
     description: "Bank application - accounts."
     version: "1.0.0"
+
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10 # how many requests it has to initially monitor then decide for open and closed
+      permittedNumberOfCallsInHalfOpenState: 2 # when in open state, how many request it will pass in half open status
+      failureRateThreshold: 50 # if 50% of the requests are failed then move from closed to open state.
+      waitDurationInOpenState: 10000 # wait for 10s before moving to half open state.
+
+
+resilience4j.retry:
+  configs:
+    default:
+      maxRetryAttempts: 3
+      waitDuration: 100
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      ignoreExceptions:
+        - java.lang.NullPointerException
+      retryExceptions:
+        - java.util.concurrent.TimeoutException
